@@ -20,14 +20,10 @@ public class Sorter {
     private Collection<File> files;
     @Getter
     @Setter
-    private String sourceDirectory;
-    @Getter
-    @Setter
     private String outputDirectory;
 
-    public Sorter(Collection<File> filesToSort, String sourceDirectory, String outputDirectory) {
+    public Sorter(Collection<File> filesToSort, String outputDirectory) {
         this.files = filesToSort;
-        this.sourceDirectory = sourceDirectory;
         this.outputDirectory = outputDirectory;
     }
 

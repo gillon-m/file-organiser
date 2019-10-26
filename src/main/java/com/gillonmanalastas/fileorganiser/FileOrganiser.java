@@ -15,7 +15,7 @@ public class FileOrganiser{
         String directoryToSort = args[0];
         String sortedDirectory = args[1];
         Collection<File> filesToSort = FileUtils.listFiles(new File(directoryToSort), null, true);
-        Sorter sorter = new Sorter(filesToSort, directoryToSort, sortedDirectory);
+        Sorter sorter = new Sorter(filesToSort, sortedDirectory);
         sorter.sort();
     }
 }
