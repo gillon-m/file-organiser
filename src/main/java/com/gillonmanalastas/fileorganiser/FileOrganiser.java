@@ -1,5 +1,6 @@
 package com.gillonmanalastas.fileorganiser;
 
+import com.drew.imaging.ImageProcessingException;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -8,7 +9,7 @@ import java.util.Collection;
 
 public class FileOrganiser{
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ImageProcessingException {
         if(args.length<2){
             throw new IOException("Please specify directory to sort followed by the destination");
         }

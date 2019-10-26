@@ -1,14 +1,18 @@
 package com.gillonmanalastas.fileorganiser;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.DateFormatSymbols;
+import java.util.*;
 
 public class Sorter {
 
@@ -24,38 +28,54 @@ public class Sorter {
 
     public Sorter(Collection<File> filesToSort, String outputDirectory) {
         this.files = filesToSort;
-        this.outputDirectory = outputDirectory;
+        this.outputDirectory = outputDirectory + File.separator;
     }
 
-    public void sort() throws IOException {
+    public void sort() throws IOException, ImageProcessingException {
         ProgressBar progressBar = new ProgressBar(files.size(), LOAD_LENGTH);
         for (File file : files) {
             System.out.print(progressBar.increment(file.getName()) + "\r");
-            if (!doesFileExistOutputDirectory(file)) {
-                FileUtils.copyFileToDirectory(file, new File(outputDirectory));
-            } else {
-                saveDuplicate(file);
+            String filename = file.getName();
+            String dateDir = dateDirectory(file);
+            if (doesFileExistInOutputDirectory(file)) {
+                filename = getDuplicateFileName(file);
             }
+            FileUtils.copyFile(file, new File(outputDirectory + dateDir + filename));
         }
     }
 
-    private void saveDuplicate(File file) throws IOException {
+    private String getDuplicateFileName(File file) throws IOException {
         String filename = file.getName();
         Integer count = duplicatesCount.get(filename);
         if (count == null) {
             duplicatesCount.put(filename, 1);
         }
         count = duplicatesCount.get(filename);
-        File copyFile = new File(outputDirectory + File.separator + "copy" + count + "-" + file.getName());
-        while (doesFileExistOutputDirectory(copyFile)) {
+        while (doesFileExistInOutputDirectory(new File(outputDirectory + "copy" + count + "-" + file.getName()))) {
             count++;
-            copyFile = new File(outputDirectory + File.separator + "copy" + count + "-" + file.getName());
         }
         duplicatesCount.put(filename, count);
-        FileUtils.copyFile(file, copyFile);
+        return "copy" + count + "-" + file.getName();
     }
 
-    private boolean doesFileExistOutputDirectory(File file) {
-        return new File(outputDirectory + File.separator + file.getName()).exists();
+    private String dateDirectory(File file) throws ImageProcessingException, IOException {
+//        Metadata metadata = ImageMetadataReader.readMetadata(file);
+//        Directory directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+//        Date date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+//        if (date == null) {
+//            date = new Date(file.lastModified());
+//        }
+
+        Date date = new Date(file.lastModified());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int monthInt = calendar.get(Calendar.MONTH);
+        String month = new DateFormatSymbols().getMonths()[monthInt];
+        int year = calendar.get(Calendar.YEAR);
+        return year + File.separator + monthInt + "-" + month + File.separator;
+    }
+
+    private boolean doesFileExistInOutputDirectory(File file) {
+        return new File(outputDirectory + file.getName()).exists();
     }
 }
