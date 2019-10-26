@@ -8,7 +8,9 @@ import java.util.Collection;
 
 public class FileOrganiser{
     public static void main(String[] args) throws IOException {
-//        new Importer().importFiles(System.getProperty("user.dir"));
+        if(args.length<2){
+            throw new IOException("Please specify directory to sort followed by the destination");
+        }
         String directoryToSort = args[0];
         String sortedDirectory = args[1];
         Collection<File> filesToSort = FileUtils.listFiles(new File(directoryToSort), null, true);
