@@ -35,27 +35,30 @@ public class Sorter {
         ProgressBar progressBar = new ProgressBar(files.size(), LOAD_LENGTH);
         for (File file : files) {
             System.out.print(progressBar.increment(file.getName()) + "\r");
-            String filename = file.getName();
-            String dateDir = dateDirectory(file);
-            if (doesFileExistInOutputDirectory(file)) {
-                filename = getDuplicateFileName(file);
+            String filepath = dateDirectory(file) + file.getName();
+            if (doesFileExistInOutputDirectory(filepath)) {
+                filepath = getDuplicateFileName(filepath);
             }
-            FileUtils.copyFile(file, new File(outputDirectory + dateDir + filename));
+            FileUtils.copyFile(file, new File(outputDirectory + filepath));
         }
     }
 
-    private String getDuplicateFileName(File file) throws IOException {
-        String filename = file.getName();
+    private String getDuplicateFileName(String filename) throws IOException {
         Integer count = duplicatesCount.get(filename);
         if (count == null) {
-            duplicatesCount.put(filename, 1);
+            count = 1;
+            duplicatesCount.put(filename, count);
         }
-        count = duplicatesCount.get(filename);
-        while (doesFileExistInOutputDirectory(new File(outputDirectory + "copy" + count + "-" + file.getName()))) {
+        while (doesFileExistInOutputDirectory(appendToFilename(filename, "copy" + count))) {
             count++;
         }
         duplicatesCount.put(filename, count);
-        return "copy" + count + "-" + file.getName();
+        return appendToFilename(filename, "copy" + count);
+    }
+
+    private String appendToFilename(String filename, String toAppend) {
+        int lastDot = filename.lastIndexOf('.');
+        return filename.substring(0, lastDot) + toAppend + filename.substring(lastDot);
     }
 
     private String dateDirectory(File file) throws ImageProcessingException, IOException {
@@ -75,7 +78,7 @@ public class Sorter {
         return year + File.separator + monthInt + "-" + month + File.separator;
     }
 
-    private boolean doesFileExistInOutputDirectory(File file) {
-        return new File(outputDirectory + file.getName()).exists();
+    private boolean doesFileExistInOutputDirectory(String filename) {
+        return new File(outputDirectory + filename).exists();
     }
 }
