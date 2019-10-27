@@ -38,7 +38,7 @@ public class ProgressBar {
 
     private String createLoadBar(int length, double percentageLoaded) {
         String bar = "|";
-        double currentlyLoaded = length * percentageLoaded;
+        int currentlyLoaded = (int)(length * percentageLoaded);
         for (int i = 0; i < currentlyLoaded; i++) {
             bar += "=";
         }
